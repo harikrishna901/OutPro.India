@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../styles/Auth.css";
@@ -17,6 +18,7 @@ export default function Login() {
     /* ================= AUTO REDIRECT IF ALREADY LOGGED IN ================= */
     useEffect(() => {
         const user = localStorage.getItem("user");
+
         if (user) {
             navigate("/");
         }
@@ -33,17 +35,23 @@ export default function Login() {
     /* ================= HANDLE SUBMIT ================= */
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         if (loading) return;
 
         setLoading(true);
         setMessage("");
 
         try {
-            const res = await fetch("https://outpro-india-ie2w.onrender.com/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
-            });
+            const res = await fetch(
+                `${import.meta.env.VITE_API_URL}/api/auth/login`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(formData),
+                }
+            );
 
             const data = await res.json();
 
@@ -53,18 +61,19 @@ export default function Login() {
                 return;
             }
 
-            /* ✅ STORE USER */
+            /* ================= STORE USER ================= */
             localStorage.setItem("user", JSON.stringify(data.user));
 
-            /* ✅ SHOW SUCCESS ANIMATION */
+            /* ================= SHOW SUCCESS ================= */
             setSuccess(true);
 
-            /* ✅ REDIRECT AFTER SUCCESS */
+            /* ================= REDIRECT ================= */
             setTimeout(() => {
                 navigate("/");
             }, 1400);
 
         } catch (err) {
+            console.error("Login error:", err);
             setMessage("Server error. Please try again.");
             setLoading(false);
         }
@@ -80,7 +89,9 @@ export default function Login() {
                             <h2>Welcome Back</h2>
 
                             {message && (
-                                <p className="auth-error">{message}</p>
+                                <p className="auth-error">
+                                    {message}
+                                </p>
                             )}
 
                             {/* EMAIL */}
@@ -121,7 +132,6 @@ export default function Login() {
                             </p>
                         </>
                     ) : (
-                        /* ✅ SUCCESS CHECK UI */
                         <div className="success-box">
                             <div className="checkmark"></div>
                             <p>Login Successful</p>
@@ -133,3 +143,4 @@ export default function Login() {
         </div>
     );
 }
+
